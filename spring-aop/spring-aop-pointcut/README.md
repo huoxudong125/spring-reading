@@ -2,46 +2,26 @@
 
 - [Pointcut](#pointcut)
   - [一、基本信息](#一基本信息)
-  - [二、知识储备](#二知识储备)
-  - [三、基本描述](#三基本描述)
-  - [四、主要功能](#四主要功能)
-  - [五、接口源码](#五接口源码)
-  - [六、主要实现](#六主要实现)
+  - [二、基本描述](#二基本描述)
+  - [三、主要功能](#三主要功能)
+  - [四、接口源码](#四接口源码)
+  - [五、主要实现](#五主要实现)
+  - [六、类关系图](#六类关系图)
   - [七、最佳实践](#七最佳实践)
-    - [自定义Pointcut](#自定义pointcut)
-    - [AspectJExpressionPointcut](#aspectjexpressionpointcut)
-    - [AnnotationMatchingPointcut](#annotationmatchingpointcut)
-    - [NameMatchMethodPointcut](#namematchmethodpointcut)
-  - [八、与其他组件的关系](#八与其他组件的关系)
-  - [九、常见问题](#九常见问题)
 
 ### 一、基本信息
 
 ✒️ **作者** - Lex 📝 **博客** - [掘金](https://juejin.cn/user/4251135018533068/posts) 📚 **源码地址** - [github](https://github.com/xuchengsheng/spring-reading)
 
-### 二、知识储备
-
-1. **AOP 概念**
-
-   + 了解面向切面编程（AOP）的基本概念和原理，包括切面、连接点、通知、切点等概念。理解 AOP 的作用和用途，以及它与传统的面向对象编程的区别。
-
-2. **Spring AOP**
-
-   + 熟悉 Spring 框架中的 AOP 实现方式，了解 Spring AOP 如何在运行时将切面织入到目标对象的方法中，以及它的工作原理。
-
-3. **代理模式**
-
-   + 了解代理模式的基本原理和实现方式，包括静态代理和动态代理。在 Spring AOP 中，代理对象负责拦截目标对象的方法调用，并在必要时应用切面逻辑。
-
-### 三、基本描述
+### 二、基本描述
 
 `Pointcut` 接口主要用于定义切入点，即确定哪些方法应该被切面所影响。Pointcut 接口提供了匹配规则，以确定在哪些类的哪些方法上应用切面，以及在何种情况下应该应用切面。
 
-### 四、主要功能
+### 三、主要功能
 
 1. **定义切入点**
 
-   + Pointcut 接口用于定义切入点，即确定哪些方法应该被切面所影响。它允许开发人员指定在哪些类的哪些方法上应用切面。
+   + Pointcut 接口用于定义切入点，即确定哪些方法应该被切面所影响。它允许我们指定在哪些类的哪些方法上应用切面。
 
 2. **匹配规则** 
 
@@ -50,12 +30,12 @@
 3. **获取类过滤器**
 
    + `getClassFilter()` 方法用于获取一个 `ClassFilter` 对象，该对象用于确定哪些类应该被匹配。我们可以根据自己的需求自定义类过滤逻辑。
-
+   
 4. **获取方法匹配器**
 
    + `getMethodMatcher()` 方法用于获取一个 `MethodMatcher` 对象，该对象用于确定哪些方法应该被匹配。我们可以根据自己的需求自定义方法匹配逻辑。
 
-### 五、接口源码
+### 四、接口源码
 
 `Pointcut`接口定义了 Spring AOP 中的切入点的核心抽象，由 `ClassFilter` 和 `MethodMatcher` 组成，分别用于确定哪些类和方法应该被匹配。通过这个接口，可以创建不同的切入点，并灵活地组合它们来定义复杂的切面。接口中还定义了一个常量 `TRUE`，代表始终匹配的切入点。
 
@@ -96,7 +76,7 @@ public interface Pointcut {
 }
 ```
 
-### 六、主要实现
+### 五、主要实现
 
 1. **NameMatchMethodPointcut** 
 
@@ -105,7 +85,7 @@ public interface Pointcut {
 2. **JdkRegexpMethodPointcut** 
 
    + 使用正则表达式匹配方法的切入点。可以使用正则表达式指定方法的匹配规则。
-
+   
 3. **AspectJExpressionPointcut** 
 
    + 使用 AspectJ 切入点表达式匹配方法的切入点。可以使用 AspectJ 的语法来定义更灵活的切入点匹配规则。
@@ -122,11 +102,50 @@ public interface Pointcut {
 
    + 始终匹配的切入点，代表不进行任何匹配，即匹配所有的类和方法。
 
+7. **AnnotationMatchingPointcut**
+
+   + 用于基于注解匹配的切入点定义。它可以根据指定的注解类型匹配类或方法，并用于将通知应用于带有特定注解的目标对象的方法。
+
+### 六、类关系图
+
+~~~mermaid
+classDiagram
+direction BT
+class AbstractExpressionPointcut
+class AbstractRegexpMethodPointcut
+class AnnotationMatchingPointcut
+class AspectJExpressionPointcut
+class DynamicMethodMatcherPointcut
+class ExpressionPointcut {
+<<Interface>>
+
+}
+class JdkRegexpMethodPointcut
+class NameMatchMethodPointcut
+class Pointcut {
+<<Interface>>
+
+}
+class StaticMethodMatcherPointcut
+class TruePointcut
+
+AbstractExpressionPointcut  ..>  ExpressionPointcut 
+AbstractRegexpMethodPointcut  -->  StaticMethodMatcherPointcut 
+AnnotationMatchingPointcut  ..>  Pointcut 
+AspectJExpressionPointcut  -->  AbstractExpressionPointcut 
+DynamicMethodMatcherPointcut  ..>  Pointcut 
+ExpressionPointcut  -->  Pointcut 
+JdkRegexpMethodPointcut  -->  AbstractRegexpMethodPointcut 
+NameMatchMethodPointcut  -->  StaticMethodMatcherPointcut 
+StaticMethodMatcherPointcut  ..>  Pointcut 
+TruePointcut  ..>  Pointcut 
+~~~
+
 ### 七、最佳实践
 
-#### 自定义Pointcut
+**MyCustomPointcut**
 
-使用 Spring AOP 创建代理对象，并应用自定义的切入点和通知来拦截目标方法的调用。首先，通过 `ProxyFactory` 创建了一个代理工厂，然后使用 `addAdvisor` 方法添加了一个切面，其中包含了自定义的切入点和通知。接着，通过代理工厂的 `getProxy` 方法获取代理对象。最后，使用代理对象调用方法。
+使用自定义的 `Pointcut` 对象 `MyCustomPointcut`。在 `customPointcut` 方法中，我们创建了 `MyCustomPointcut` 的实例，并通过 `showMatchesLog` 方法展示了其对类和方法的匹配情况。最后，我们通过调用 `showMatchesLog` 方法来检查 `MyCustomPointcut` 对象对目标类 `MyService` 中的方法的匹配情况，并输出匹配结果。
 
 ```java
 public class PointcutDemo {
@@ -135,20 +154,30 @@ public class PointcutDemo {
     }
 
     /**
-     * 自定义 Pointcut 最佳实践
+     * 自定义 Pointcut 
      */
     private static void customPointcut() {
-        // 创建代理工厂
-        ProxyFactory proxyFactory = new ProxyFactory(new MyBean());
-        // 添加切面：使用自定义的切入点和通知构建默认切面
-        proxyFactory.addAdvisor(new DefaultPointcutAdvisor(new MyCustomPointcut(), new MyCustomAdvice()));
-        // 获取代理对象
-        MyBean myBean = (MyBean) proxyFactory.getProxy();
+        MyCustomPointcut pointcut = new MyCustomPointcut();
+        showMatchesLog(pointcut);
+    }
+    
+    public static void showMatchesLog(Pointcut pointcut) {
+        try {
+            Class<MyService> target = MyService.class;
+            Method getNameMethod = target.getDeclaredMethod("getName");
+            Method getAgeMethod = target.getDeclaredMethod("getAge");
+            Method setNameMethod = target.getDeclaredMethod("setName");
 
-        // 使用代理对象调用方法
-        myBean.getName(); // 将被通知拦截
-        myBean.getAge(); // 将被通知拦截
-        myBean.setName(); // 不会被通知拦截
+            ClassFilter classFilter = pointcut.getClassFilter();
+            MethodMatcher methodMatcher = pointcut.getMethodMatcher();
+
+            System.out.println("ClassFilter MyService = " + classFilter.matches(target));
+            System.out.println("MethodMatcher MyService getName = " + methodMatcher.matches(getNameMethod, target));
+            System.out.println("MethodMatcher MyService getAge = " + methodMatcher.matches(getAgeMethod, target));
+            System.out.println("MethodMatcher MyService setName = " + methodMatcher.matches(setNameMethod, target));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
 ```
@@ -189,38 +218,39 @@ class MyCustomPointcut implements Pointcut {
 }
 ```
 
-自定义的通知 `MyCustomAdvice`，它实现了 `MethodBeforeAdvice` 接口，因此是一个前置通知，用于在目标方法执行之前执行额外的逻辑。在 `before` 方法中，它输出一条日志信息 "Before advice is executed"，表示在目标方法执行前执行了该通知逻辑。
+`MyService` 类是一个示例服务类，标注了类级别的 `@MyClassAnnotation` 注解，其中包含了三个方法：`getName()`、`setName()` 和 `getAge()`。其中，`setName()` 方法标注了方法级别的 `@MyMethodAnnotation` 注解。
 
 ```java
-class MyCustomAdvice implements MethodBeforeAdvice {
-    @Override
-    public void before(Method method, Object[] args, Object target) throws Throwable {
-        System.out.println("Before advice is executed");
-    }
-}
-```
+@MyClassAnnotation
+public class MyService {
 
-定义了一个简单的 Java 类 `MyBean`，其中包含了三个方法`getName()`、`setName()` 和 `getAge()`。
-
-```java
-public class MyBean {
     public void getName() {
-        System.out.println("getName() method");
+        System.out.println("getName...");
     }
 
+    @MyMethodAnnotation
     public void setName() {
-        System.out.println("setName() method");
+        System.out.println("setName...");
     }
 
     public void getAge() {
-        System.out.println("getAge() method");
+        System.out.println("getAge...");
     }
 }
 ```
 
-#### AspectJExpressionPointcut
+运行结果，`MyService` 类级别的过滤器匹配成功，而在方法级别，`getName` 和 `getAge` 方法成功匹配，但 `setName` 方法未匹配成功。
 
-使用 `AspectJExpressionPointcut` 实现一个简单的切入点定义。在 `aspectJExpressionPointcut` 方法中，我们创建了一个 `AspectJExpressionPointcut` 对象，并设置了 AspectJ 表达式，该表达式匹配了所有类中的 `getName()` 方法。然后，我们将切入点与通知关联，并将其作为切面添加到代理工厂中。最后，我们使用代理对象调用了几个方法，根据切入点的定义，只有匹配到的方法会被通知拦截。
+```java
+ClassFilter MyService = true
+MethodMatcher MyService getName = true
+MethodMatcher MyService getAge = true
+MethodMatcher MyService setName = false
+```
+
+**AspectJExpressionPointcut**
+
+使用 `AspectJExpressionPointcut` 创建一个基于 AspectJ 表达式的切入点。在 `aspectJExpressionPointcut` 方法中，我们创建了 `AspectJExpressionPointcut` 的实例，并设置了 AspectJ 表达式 `"execution(* com.xcs.spring.MyService.get*())"`，该表达式匹配了 `com.xcs.spring.MyService` 类中以 `get` 开头的所有方法。最后，我们通过调用 `showMatchesLog` 方法来检查 `AspectJExpressionPointcut` 对象对指定类中的方法的匹配情况，并输出匹配结果。
 
 ```java
 public class PointcutDemo {
@@ -228,32 +258,30 @@ public class PointcutDemo {
         aspectJExpressionPointcut();
     }
 
-    /**
-     * AspectJExpressionPointcut最佳实践
+     /**
+     * AspectJExpressionPointcut
      */
     private static void aspectJExpressionPointcut() {
         // 创建 AspectJ 表达式切入点
         AspectJExpressionPointcut pointcut = new AspectJExpressionPointcut();
-        pointcut.setExpression("execution(* *.getName())");
-
-        // 创建代理工厂
-        ProxyFactory proxyFactory = new ProxyFactory(new MyBean());
-        // 添加切面：使用自定义的切入点和通知构建默认切面
-        proxyFactory.addAdvisor(new DefaultPointcutAdvisor(pointcut, new MyCustomAdvice()));
-        // 获取代理对象
-        MyBean myBean = (MyBean) proxyFactory.getProxy();
-
-        // 使用代理对象调用方法
-        myBean.getName(); // 将被通知拦截
-        myBean.getAge(); // 不会被通知拦截
-        myBean.setName(); // 不会被通知拦截
+        pointcut.setExpression("execution(* com.xcs.spring.MyService.get*())");
+        showMatchesLog(pointcut);
     }
 }
 ```
 
-#### AnnotationMatchingPointcut
+运行结果，`MyService` 类级别的过滤器匹配成功，而在方法级别，`getName` 和 `getAge` 方法成功匹配，但 `setName` 方法未匹配成功。
 
-使用 `AnnotationMatchingPointcut` 实现一个简单的切入点定义。在 `annotationMatchingPointcut` 方法中，我们创建了一个 `AnnotationMatchingPointcut` 对象，并指定了要匹配的注解类型 `MyAnnotation`，以及是否检查继承的方法。然后，我们将切入点与通知关联，并将其作为切面添加到代理工厂中。最后，我们使用代理对象调用了几个方法，根据切入点的定义，所有使用了 `MyAnnotation` 注解的方法都会被通知拦截。
+```java
+ClassFilter MyService = true
+MethodMatcher MyService getName = true
+MethodMatcher MyService getAge = true
+MethodMatcher MyService setName = false
+```
+
+**AnnotationMatchingPointcut**
+
+使用 `AnnotationMatchingPointcut` 创建一个基于注解匹配的切入点。在 `annotationMatchingPointcut` 方法中，我们创建了 `AnnotationMatchingPointcut` 的实例，并指定了类级别注解 `MyClassAnnotation` 和方法级别注解 `MyMethodAnnotation`，同时设置了不检查继承的方法。最后，我们通过调用 `showMatchesLog` 方法来检查 `AnnotationMatchingPointcut` 对象对指定类中的方法的匹配情况，并输出匹配结果。
 
 ```java
 public class PointcutDemo {
@@ -262,27 +290,28 @@ public class PointcutDemo {
     }
 
     /**
-     * AnnotationMatchingPointcut 最佳实践
+     * AnnotationMatchingPointcut
      */
     private static void annotationMatchingPointcut() {
-        // 创建代理工厂
-        ProxyFactory proxyFactory = new ProxyFactory(new MyBean());
-        // 添加切面：使用AnnotationMatchingPointcut切入点和通知构建默认切面
-        proxyFactory.addAdvisor(new DefaultPointcutAdvisor(new AnnotationMatchingPointcut(MyAnnotation.class, false), new MyCustomAdvice()));
-        // 获取代理对象
-        MyBean myBean = (MyBean) proxyFactory.getProxy();
-
-        // 使用代理对象调用方法
-        myBean.getName(); // 将被通知拦截
-        myBean.getAge(); // 将被通知拦截
-        myBean.setName(); // 将被通知拦截
+        // 使用AnnotationMatchingPointcut切入点
+        AnnotationMatchingPointcut pointcut = new AnnotationMatchingPointcut(MyClassAnnotation.class, MyMethodAnnotation.class, false);
+        showMatchesLog(pointcut);
     }
 }
 ```
 
-#### NameMatchMethodPointcut
+运行结果，`MyService` 类级别的过滤器匹配成功，而方法级别的匹配器成功匹配了 `setName` 方法，但未匹配 `getName` 和 `getAge` 方法。
 
-使用 `NameMatchMethodPointcut` 实现一个简单的切入点定义。在 `nameMatchMethodPointcut` 方法中，我们创建了一个 `NameMatchMethodPointcut` 对象，并添加了要匹配的方法名 `getAge`。然后，我们将切入点与通知关联，并将其作为切面添加到代理工厂中。最后，我们使用代理对象调用了几个方法，根据切入点的定义，只有匹配到的方法会被通知拦截。
+```java
+ClassFilter MyService = true
+MethodMatcher MyService getName = false
+MethodMatcher MyService getAge = false
+MethodMatcher MyService setName = true
+```
+
+**NameMatchMethodPointcut**
+
+使用 `NameMatchMethodPointcut` 创建一个基于方法名匹配的切入点。在 `nameMatchMethodPointcut` 方法中，我们创建了 `NameMatchMethodPointcut` 的实例，并添加了要匹配的方法名 `getAge`。然后，我们通过调用 `showMatchesLog` 方法来检查 `NameMatchMethodPointcut` 对象对指定类中的方法的匹配情况，并输出匹配结果。
 
 ```java
 public class PointcutDemo {
@@ -291,68 +320,52 @@ public class PointcutDemo {
     }
 
     /**
-     * AspectJExpressionPointcut最佳实践
+     * AspectJExpressionPointcut
      */
     private static void nameMatchMethodPointcut() {
-        // 创建方法名匹配切入点
+        // 使用AnnotationMatchingPointcut切入点
         NameMatchMethodPointcut pointcut = new NameMatchMethodPointcut();
         pointcut.addMethodName("getAge");
-
-        // 创建代理工厂
-        ProxyFactory proxyFactory = new ProxyFactory(new MyBean());
-        // 添加切面：使用自定义的切入点和通知构建默认切面
-        proxyFactory.addAdvisor(new DefaultPointcutAdvisor(pointcut, new MyCustomAdvice()));
-        // 获取代理对象
-        MyBean myBean = (MyBean) proxyFactory.getProxy();
-
-        // 使用代理对象调用方法
-        myBean.getName(); // 不会被通知拦截
-        myBean.getAge(); // 将被通知拦截
-        myBean.setName(); // 不会被通知拦截
+        showMatchesLog(pointcut);
     }
 }
 ```
 
-### 八、与其他组件的关系
+运行结果， `MyService` 类级别的过滤器匹配成功，而方法级别的匹配器成功匹配了 `getAge` 方法，但未匹配 `getName` 和 `setName` 方法。
 
-1. **Advisor**
+```java
+ClassFilter MyService = true
+MethodMatcher MyService getName = false
+MethodMatcher MyService getAge = true
+MethodMatcher MyService setName = false
+```
 
-   +  Advisor 包含了切入点和通知，而切入点就是由 Pointcut 定义的。Advisor 使用 Pointcut 来确定在何处应该应用通知。
+**JdkRegexpMethodPointcut**
 
-2. **切面（Aspect）** 
+使用 `JdkRegexpMethodPointcut` 创建一个基于 JDK 正则表达式匹配的切入点。在 `jdkRegexpMethodPointcut` 方法中，我们创建了 `JdkRegexpMethodPointcut` 的实例，并设置了正则表达式模式 `".*set.*"`，该模式匹配了所有包含 "set" 字符串的方法名。然后，我们通过调用 `showMatchesLog` 方法来检查 `JdkRegexpMethodPointcut` 对象对指定类中的方法的匹配情况，并输出匹配结果。
 
-   + 切面是一种横切关注点的模块化实现，其中包含了切入点和通知。切面通常将 Pointcut 与 Advice（通知）结合在一起，定义了在何处和如何应用通知。
+```java
+public class PointcutDemo {
+    public static void main(String[] args) {
+        jdkRegexpMethodPointcut();
+    }
 
-3. **Pointcut实现类** 
+    /**
+     * JdkRegexpMethodPointcut
+     */
+    private static void jdkRegexpMethodPointcut() {
+        JdkRegexpMethodPointcut pointcut = new JdkRegexpMethodPointcut();
+        pointcut.setPattern(".*set.*");
+        showMatchesLog(pointcut);
+    }
+}
+```
 
-   + `Pointcut` 接口是定义切入点的核心接口。Spring AOP 提供了多种实现了 `Pointcut` 接口的类，如 `NameMatchMethodPointcut`、`AspectJExpressionPointcut` 等，用于实现不同类型的切入点匹配规则。
+运行结果，`MyService` 类级别的过滤器匹配成功，而方法级别的匹配器成功匹配了 `setName` 方法，但未匹配 `getName` 和 `getAge` 方法。
 
-### 九、常见问题
-
-1. **切入点表达式定义错误** 
-
-   + 使用 AspectJ 表达式时，可能会由于表达式定义错误导致切入点匹配失败。例如，表达式写错了、漏掉了必要的切入点信息等。
-
-2. **匹配不到目标方法** 
-
-   + 定义的切入点可能无法匹配到目标方法，导致通知无法正确地应用。这可能是由于切入点的匹配规则不正确，或者目标方法的特征与切入点不匹配等原因造成的。
-
-3. **切入点过于宽泛** 
-
-   + 切入点定义过于宽泛，导致匹配到了不必要的方法，使得通知影响范围过大。这可能会导致性能问题或意外的行为。
-
-4. **切入点过于狭窄** 
-
-   + 切入点定义过于狭窄，导致无法匹配到预期的目标方法，使得通知无法正确应用。这可能会导致切面无法达到预期的效果。
-
-5. **运行时动态匹配问题**
-
-   +  如果使用了运行时动态匹配的切入点，可能会由于动态条件的设置不正确或者动态条件的结果不符合预期等原因导致匹配失败。
-
-6. **与其他切面冲突** 
-
-   + 如果多个切面定义了相互冲突的切入点，可能会导致切面的顺序问题或者切面之间的冲突，使得通知的执行顺序出现问题或者切面功能失效。
-
-7. **性能问题** 
-
-   + 如果切入点定义过于宽泛或者运行时动态匹配过于频繁，可能会导致性能问题，影响应用程序的性能表现。
+```java
+ClassFilter MyService = true
+MethodMatcher MyService getName = false
+MethodMatcher MyService getAge = false
+MethodMatcher MyService setName = true
+```
